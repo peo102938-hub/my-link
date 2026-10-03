@@ -14,12 +14,12 @@ export default function Home() {
 
         {/* 한 줄 태그 / 뱃지 */}
         <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-neutral-100 dark:bg-neutral-700 px-3 py-1 text-xs font-medium text-neutral-600 dark:text-neutral-300">
-          <span>Student & Developer</span>
+          <span>Frontend & Web Developer</span>
         </div>
 
         {/* 소개글 */}
-        <p className="mt-4 text-sm sm:text-base leading-relaxed text-neutral-600 dark:text-neutral-300">
-          안녕하세요! 바이브 코딩을 배우고 있는 대학생입니다.
+        <p className="mt-4 text-sm sm:text-base leading-relaxed text-neutral-600 dark:text-neutral-300 break-keep">
+          사용자 중심의 직관적인 인터페이스와 좋은 코드 품질을 고민하는 개발자입니다. 복잡한 문제를 기술로 단순화하고, 배운 것을 서비스로 구현하는 과정에 몰입합니다.
         </p>
 
         {/* 추가 링크 또는 소셜 버튼 영역 (심플 스타일) */}

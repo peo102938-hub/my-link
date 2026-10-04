@@ -1,26 +1,63 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --tds-blue-500: #3182f6;
+  --tds-blue-600: #1b64da;
+  --tds-blue-50: #e8f3ff;
+  --tds-grey-900: #191f28;
+  --tds-grey-800: #333d4b;
+  --tds-grey-700: #4e5968;
+  --tds-grey-600: #6b7684;
+  --tds-grey-500: #8b95a1;
+  --tds-grey-400: #b0b8c1;
+  --tds-grey-300: #d1d6db;
+  --tds-grey-200: #e5e8eb;
+  --tds-grey-100: #f2f4f6;
+  --tds-grey-50: #f9fafb;
+  --tds-white: #ffffff;
+  --tds-green-500: #00b569;
+  --tds-red-500: #f04452;
+  --tds-yellow-500: #ffc342;
+  --tds-press-overlay: rgba(0, 0, 0, 0.05);
+
+  --background: var(--tds-grey-50);
+  --foreground: var(--tds-grey-900);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", Roboto, sans-serif;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+}
+
+/* 숫자 tabular 분리 */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 토스 카드 표준 래퍼 */
+.tds-card {
+  background-color: #ffffff;
+  border-radius: 24px;
+  border: 1px solid var(--tds-grey-200);
+  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.03);
+}
+
+/* 터치 / 클릭 프레스 효과 */
+.tds-pressable {
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.tds-pressable:active {
+  background-color: var(--tds-grey-100);
 }

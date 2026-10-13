@@ -1,0 +1,81 @@
+{
+  "displayName": "홍길동",
+  "role": "Frontend Developer",
+  "bio": "사용자 중심의 경험과 인터랙션을 만드는 프론트엔드 엔지니어입니다.",
+  "avatarText": "홍",
+  "avatarUrl": null,
+  "email": "gildong@example.com",
+  "resumeUrl": "https://resume.example.com/gildong",
+  "stacks": [
+    "React 19",
+    "Next.js 16",
+    "TypeScript",
+    "Tailwind CSS v4",
+    "UI/UX"
+  ],
+  "links": [
+    {
+      "id": "portfolio",
+      "title": "포트폴리오",
+      "subtitle": "진행했던 주요 프로젝트와 작업물이에요",
+      "url": "https://portfolio.example.com",
+      "icon": "💼",
+      "badge": "추천",
+      "isActive": true
+    },
+    {
+      "id": "github",
+      "title": "GitHub",
+      "subtitle": "오픈소스 기여와 개발 기록을 볼 수 있어요",
+      "url": "https://github.com/gildong",
+      "icon": "🐙",
+      "badge": null,
+      "isActive": true
+    },
+    {
+      "id": "blog",
+      "title": "기술 블로그",
+      "subtitle": "웹 성능 최적화와 프론트엔드 이야기를 써요",
+      "url": "https://velog.io/@gildong",
+      "icon": "✍️",
+      "badge": "NEW",
+      "isActive": true
+    },
+    {
+      "id": "resume",
+      "title": "이력서",
+      "subtitle": "상세한 기술 스택과 경력 사항이에요",
+      "url": "https://resume.example.com/gildong",
+      "icon": "📄",
+      "badge": null,
+      "isActive": true
+    },
+    {
+      "id": "linkedin",
+      "title": "LinkedIn",
+      "subtitle": "커리어와 네트워크를 연결해요",
+      "url": "https://linkedin.com/in/gildong",
+      "icon": "💼",
+      "badge": null,
+      "isActive": false
+    }
+  ],
+  "socials": [
+    {
+      "platform": "github",
+      "url": "https://github.com/gildong"
+    },
+    {
+      "platform": "blog",
+      "url": "https://velog.io/@gildong"
+    },
+    {
+      "platform": "twitter",
+      "url": "https://twitter.com/gildong_dev"
+    },
+    {
+      "platform": "email",
+      "url": "mailto:gildong@example.com"
+    }
+  ]
+}

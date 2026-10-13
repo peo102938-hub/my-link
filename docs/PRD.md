@@ -1,8 +1,9 @@
 # 마이링크 (MyLink) - 제품 요구사항 정의서 (PRD)
 
-> **버전**: v1.2.0 (Phase 1: LocalStorage 기반 프로필 페이지 전용)  
+> **버전**: v1.4.0 (Phase 1: LocalStorage 기반 프로필 페이지 전용)  
 > **상태**: 승인됨 (Approved)  
 > **작성일**: 2026-10-04  
+> **최종 수정일**: 2026-10-05 (더미 데이터 명세 및 mock 파일 반영)  
 > **대상 플랫폼**: Web (Mobile-First Responsive)  
 > **현재 단계 범위**: **Phase 1 - 로컬 스토리지 연동 프로필 페이지** (대시보드, 인증, 통계 기능은 후속 단계로 유보)
 
@@ -226,7 +227,7 @@ flowchart TD
 ### 5.2 로컬 스토리지 연동 및 데이터 관리
 | ID | 기능명 | 상세 내용 | 우선순위 |
 | :--- | :--- | :--- | :--- |
-| **DATA-01** | 자동 시딩 (Auto Seed) | `localStorage`에 데이터가 없을 경우 기본 Mock 데이터를 자동 생성하여 저장 | P0 (Must) |
+| **DATA-01** | 자동 시딩 (Auto Seed) | `localStorage`에 데이터가 없을 경우 `src/data/mock-profile.json`의 더미 데이터를 자동 주입하여 로컬 스토리지에 저장 | P0 (Must) |
 | **DATA-02** | 데이터 동기화 Hook | React Custom Hook(`useProfileStorage`)을 통해 로컬 스토리지 상태를 안전하게 읽고 구독 | P0 (Must) |
 | **DATA-03** | SSR Hydration 오류 방지 | 클라이언트 마운트 이후 로컬 스토리지를 읽어 Next.js Hydration 불일치 오류 방지 (Skeleton/Loading 처리) | P0 (Must) |
 
@@ -245,7 +246,7 @@ export interface LinkItem {
   subtitle: string;        // 보조 설명 (예: "진행했던 주요 프로젝트와 작업물이에요")
   url: string;             // 목적지 URL
   icon: string;            // 이모지 또는 아이콘명 (💼, 🐙, ✍️, 📄 등)
-  badge?: string;          // 강조 뱃지 (선택, 예: "추천")
+  badge?: string | null;   // 강조 뱃지 (선택, 예: "추천", "NEW")
   isActive: boolean;       // 노출 여부
 }
 
@@ -259,77 +260,160 @@ export interface ProfileData {
   role: string;            // 직무/역할 (예: "Frontend Developer")
   bio: string;             // 소개글 (예: "사용자 중심의 가치를 만드는 엔지니어입니다.")
   avatarText?: string;     // 텍스트 아바타 (예: "홍")
-  avatarUrl?: string;      // 이미지 아바타 URL
+  avatarUrl?: string | null; // 이미지 아바타 URL
   email: string;           // 빠른 복사용 이메일
+  resumeUrl?: string | null; // 빠른 이력서 보기 URL
   stacks: string[];        // 기술 스택/태그 목록
   links: LinkItem[];       // 주요 링크 목록
   socials: SocialLink[];   // 하단 소셜 링크 목록
 }
 ```
 
-### 6.3 기본 시드 Mock 데이터 구조
+### 6.3 LocalStorage 기본 시드 더미 데이터 (`src/data/mock-profile.json`)
+- **용도**: 앱 최초 접속 시 로컬 스토리지(`mylink_profile_data`)가 비어 있을 때 자동 주입(DATA-01)되는 단일 프로필 데이터입니다.
+- **파일 경로**: `src/data/mock-profile.json`
+- **구조**:
 ```json
 {
   "displayName": "홍길동",
   "role": "Frontend Developer",
   "bio": "사용자 중심의 경험과 인터랙션을 만드는 프론트엔드 엔지니어입니다.",
   "avatarText": "홍",
+  "avatarUrl": null,
   "email": "gildong@example.com",
-  "stacks": ["React 19", "Next.js 16", "TypeScript", "Tailwind CSS v4"],
+  "resumeUrl": "https://resume.example.com/gildong",
+  "stacks": [
+    "React 19",
+    "Next.js 16",
+    "TypeScript",
+    "Tailwind CSS v4",
+    "UI/UX"
+  ],
   "links": [
     {
       "id": "portfolio",
       "title": "포트폴리오",
       "subtitle": "진행했던 주요 프로젝트와 작업물이에요",
-      "badge": "추천",
-      "url": "https://github.com",
+      "url": "https://portfolio.example.com",
       "icon": "💼",
+      "badge": "추천",
       "isActive": true
     },
     {
       "id": "github",
       "title": "GitHub",
       "subtitle": "오픈소스 기여와 개발 기록을 볼 수 있어요",
-      "url": "https://github.com",
+      "url": "https://github.com/gildong",
       "icon": "🐙",
+      "badge": null,
       "isActive": true
     },
     {
       "id": "blog",
       "title": "기술 블로그",
       "subtitle": "웹 성능 최적화와 프론트엔드 이야기를 써요",
-      "url": "https://velog.io",
+      "url": "https://velog.io/@gildong",
       "icon": "✍️",
+      "badge": "NEW",
       "isActive": true
     },
     {
       "id": "resume",
       "title": "이력서",
       "subtitle": "상세한 기술 스택과 경력 사항이에요",
-      "url": "#resume",
+      "url": "https://resume.example.com/gildong",
       "icon": "📄",
+      "badge": null,
       "isActive": true
+    },
+    {
+      "id": "linkedin",
+      "title": "LinkedIn",
+      "subtitle": "커리어와 네트워크를 연결해요",
+      "url": "https://linkedin.com/in/gildong",
+      "icon": "💼",
+      "badge": null,
+      "isActive": false
     }
   ],
   "socials": [
-    { "platform": "github", "url": "https://github.com" },
-    { "platform": "blog", "url": "https://velog.io" }
+    {
+      "platform": "github",
+      "url": "https://github.com/gildong"
+    },
+    {
+      "platform": "blog",
+      "url": "https://velog.io/@gildong"
+    },
+    {
+      "platform": "twitter",
+      "url": "https://twitter.com/gildong_dev"
+    },
+    {
+      "platform": "email",
+      "url": "mailto:gildong@example.com"
+    }
   ]
 }
 ```
 
+### 6.4 백엔드 Mock API 및 다중 유저 확장 더미 데이터 (`src/data/mock-api.json`)
+- **용도**: Phase 5(멀티유저 SaaS 전환) 및 백엔드 REST API Mocking(`json-server`, MSW 등)을 위한 정규화된 데이터셋입니다.
+- **파일 경로**: `src/data/mock-api.json`
+- **구조 특징**:
+  - `profiles`: 프로필 마스터 목록 (홍길동 `@gildong`, 이지은 `@jieun`)
+  - `links`: 외래키(`profileId`), 정렬 순서(`order`), 클릭수(`clickCount`), 생성/수정일시(`createdAt`, `updatedAt`) 포함
+  - `socials`: 프로필별 소셜 채널 외래키 연결 구조
+- **Mock 서버 실행 예시**:
+  ```bash
+  npx json-server src/data/mock-api.json --port 4000
+  # GET /profiles
+  # GET /links?profileId=gildong
+  ```
+
 ---
 
-## 7. 디자인 및 UI 사양 (Toss Design System 스타일)
+## 7. 디자인 및 UI 사양
 
-- **배경색**: `#F9FAFB` (부드러운 오프화이트 서피스)
-- **카드 서피스**: `#FFFFFF`, `border: #E5E8EB`, 라운드 코너 `rounded-[24px]`
+### 7.1 디자인 시스템 기반
+
+**모든 UI 컴포넌트는 [shadcn/ui](https://ui.shadcn.com/)를 기반으로 구현한다.**
+
+shadcn/ui는 Radix UI 프리미티브 위에 Tailwind CSS를 조합한 컴포넌트 컬렉션으로, 컴포넌트 소스를 프로젝트에 직접 복사해 완전한 커스터마이징이 가능한 구조다. 이를 프로젝트의 Toss 디자인 스타일로 오버라이드하여 사용한다.
+
+| 항목 | 채택 내용 |
+| :--- | :--- |
+| **컴포넌트 라이브러리** | shadcn/ui v4 (style: `base-nova`) |
+| **CSS 엔진** | Tailwind CSS v4 + CSS 변수(`@theme inline`) 방식 |
+| **아이콘** | Lucide React (shadcn/ui 기본 아이콘 라이브러리) |
+| **애니메이션** | `tw-animate-css` (shadcn/ui 설치 시 자동 포함) |
+| **다크모드** | `.dark` 클래스 방식 (향후 Phase 3 테마 기능과 연동) |
+| **컴포넌트 경로** | `@/components/ui/` |
+| **유틸리티** | `@/lib/utils` (`cn()` 함수) |
+
+### 7.2 Toss 디자인 스타일 오버라이드 원칙
+
+shadcn/ui의 기본 CSS 변수를 Toss Design System 팔레트로 재정의하여 사용한다. 새 컴포넌트 추가 시 shadcn/ui 토큰(`--primary`, `--secondary`, `--muted` 등)을 Toss 변수(`--tds-blue-500`, `--tds-grey-*` 등)에 매핑하는 방식으로 확장한다.
+
+- **배경색**: `--background` → `#F9FAFB` (부드러운 오프화이트 서피스)
+- **카드 서피스**: `--card` → `#FFFFFF`, `border: #E5E8EB`, 라운드 코너 `rounded-[24px]`
 - **타이포그래피**: Pretendard Variable 폰트, 가독성 높은 폰트 위계
-- **포인트 색상**: Toss Blue (`#3182F6`)
+- **포인트 색상**: `--primary` → Toss Blue (`#3182F6`)
 - **텍스트 컬러**: Primary `#191F28`, Secondary `#4E5968`, Tertiary `#8B95A1`
-- **인터랙션**:
-  - 카드 호버 및 클릭 시 살짝 눌리는 애니메이션 (`active:scale-[0.98] transition-transform`)
-  - 토스트 알림 (하단 플로팅, 2.4초 후 자동 페이드아웃)
+
+### 7.3 인터랙션 사양
+
+- 카드 호버 및 클릭 시 살짝 눌리는 애니메이션 (`active:scale-[0.98] transition-transform`)
+- 토스트 알림 (하단 플로팅, 2.4초 후 자동 페이드아웃) — shadcn/ui `Sonner` 또는 `Toast` 컴포넌트 활용
+
+### 7.4 컴포넌트 추가 가이드
+
+새 UI 컴포넌트가 필요한 경우 아래 명령어로 shadcn/ui 컴포넌트를 먼저 추가한 뒤, Toss 스타일로 커스터마이징한다.
+
+```bash
+node "C:\Program Files\nodejs\node_modules\npm\bin\npx-cli.js" shadcn@latest add <컴포넌트명>
+# 예: button, card, dialog, input, toast, badge, ...
+```
 
 ---
 

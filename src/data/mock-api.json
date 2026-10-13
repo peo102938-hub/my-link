@@ -1,0 +1,183 @@
+{
+  "profiles": [
+    {
+      "id": "gildong",
+      "username": "@gildong",
+      "displayName": "홍길동",
+      "role": "Frontend Developer",
+      "bio": "사용자 중심의 경험과 인터랙션을 만드는 프론트엔드 엔지니어입니다.",
+      "avatarText": "홍",
+      "avatarUrl": null,
+      "email": "gildong@example.com",
+      "resumeUrl": "https://resume.example.com/gildong",
+      "isVerified": true,
+      "createdAt": "2026-01-10T09:00:00.000Z",
+      "updatedAt": "2026-10-04T12:00:00.000Z",
+      "stacks": [
+        "React 19",
+        "Next.js 16",
+        "TypeScript",
+        "Tailwind CSS v4",
+        "UI/UX"
+      ]
+    },
+    {
+      "id": "jieun",
+      "username": "@jieun",
+      "displayName": "이지은",
+      "role": "UX Designer",
+      "bio": "사람과 기술의 간격을 좁히는 디자이너예요.",
+      "avatarText": "이",
+      "avatarUrl": null,
+      "email": "jieun@example.com",
+      "resumeUrl": null,
+      "isVerified": false,
+      "createdAt": "2026-03-05T11:30:00.000Z",
+      "updatedAt": "2026-09-20T08:00:00.000Z",
+      "stacks": [
+        "Figma",
+        "Prototyping",
+        "User Research",
+        "Toss Design System"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "link-001",
+      "profileId": "gildong",
+      "title": "포트폴리오",
+      "subtitle": "진행했던 주요 프로젝트와 작업물이에요",
+      "url": "https://portfolio.example.com",
+      "icon": "💼",
+      "badge": "추천",
+      "order": 1,
+      "isActive": true,
+      "clickCount": 128,
+      "createdAt": "2026-01-10T09:00:00.000Z",
+      "updatedAt": "2026-10-04T12:00:00.000Z"
+    },
+    {
+      "id": "link-002",
+      "profileId": "gildong",
+      "title": "GitHub",
+      "subtitle": "오픈소스 기여와 개발 기록을 볼 수 있어요",
+      "url": "https://github.com/gildong",
+      "icon": "🐙",
+      "badge": null,
+      "order": 2,
+      "isActive": true,
+      "clickCount": 96,
+      "createdAt": "2026-01-10T09:05:00.000Z",
+      "updatedAt": "2026-09-30T10:00:00.000Z"
+    },
+    {
+      "id": "link-003",
+      "profileId": "gildong",
+      "title": "기술 블로그",
+      "subtitle": "웹 성능 최적화와 프론트엔드 이야기를 써요",
+      "url": "https://velog.io/@gildong",
+      "icon": "✍️",
+      "badge": "NEW",
+      "order": 3,
+      "isActive": true,
+      "clickCount": 74,
+      "createdAt": "2026-01-10T09:10:00.000Z",
+      "updatedAt": "2026-10-01T15:00:00.000Z"
+    },
+    {
+      "id": "link-004",
+      "profileId": "gildong",
+      "title": "이력서",
+      "subtitle": "상세한 기술 스택과 경력 사항이에요",
+      "url": "https://resume.example.com/gildong",
+      "icon": "📄",
+      "badge": null,
+      "order": 4,
+      "isActive": true,
+      "clickCount": 53,
+      "createdAt": "2026-01-10T09:15:00.000Z",
+      "updatedAt": "2026-10-02T11:00:00.000Z"
+    },
+    {
+      "id": "link-005",
+      "profileId": "gildong",
+      "title": "LinkedIn",
+      "subtitle": "커리어와 네트워크를 연결해요",
+      "url": "https://linkedin.com/in/gildong",
+      "icon": "💼",
+      "badge": null,
+      "order": 5,
+      "isActive": false,
+      "clickCount": 12,
+      "createdAt": "2026-02-01T10:00:00.000Z",
+      "updatedAt": "2026-09-15T09:00:00.000Z"
+    },
+    {
+      "id": "link-006",
+      "profileId": "jieun",
+      "title": "포트폴리오",
+      "subtitle": "Behance에 정리된 디자인 작업물이에요",
+      "url": "https://behance.net/jieun",
+      "icon": "🎨",
+      "badge": "추천",
+      "order": 1,
+      "isActive": true,
+      "clickCount": 211,
+      "createdAt": "2026-03-05T11:30:00.000Z",
+      "updatedAt": "2026-09-20T08:00:00.000Z"
+    },
+    {
+      "id": "link-007",
+      "profileId": "jieun",
+      "title": "Notion 아카이브",
+      "subtitle": "UX 리서치 노트와 분석 자료를 모아뒀어요",
+      "url": "https://notion.so/jieun",
+      "icon": "📓",
+      "badge": null,
+      "order": 2,
+      "isActive": true,
+      "clickCount": 88,
+      "createdAt": "2026-03-10T14:00:00.000Z",
+      "updatedAt": "2026-09-18T12:00:00.000Z"
+    }
+  ],
+  "socials": [
+    {
+      "id": "social-001",
+      "profileId": "gildong",
+      "platform": "github",
+      "url": "https://github.com/gildong"
+    },
+    {
+      "id": "social-002",
+      "profileId": "gildong",
+      "platform": "blog",
+      "url": "https://velog.io/@gildong"
+    },
+    {
+      "id": "social-003",
+      "profileId": "gildong",
+      "platform": "twitter",
+      "url": "https://twitter.com/gildong_dev"
+    },
+    {
+      "id": "social-004",
+      "profileId": "gildong",
+      "platform": "email",
+      "url": "mailto:gildong@example.com"
+    },
+    {
+      "id": "social-005",
+      "profileId": "jieun",
+      "platform": "instagram",
+      "url": "https://instagram.com/jieun.design"
+    },
+    {
+      "id": "social-006",
+      "profileId": "jieun",
+      "platform": "email",
+      "url": "mailto:jieun@example.com"
+    }
+  ]
+}

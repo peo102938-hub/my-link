@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ProfileData } from "@/types/profile";
+import { ProfileData, LinkItem } from "@/types/profile";
 import initialMockProfile from "@/data/mock-profile.json";
 
 export const STORAGE_KEY = "mylink_profile_data";
@@ -39,9 +39,29 @@ export function useProfileStorage() {
     }
   };
 
+  const addLink = (newLink: Omit<LinkItem, "id"> | LinkItem) => {
+    if (!data) return;
+
+    const linkItem: LinkItem =
+      "id" in newLink && newLink.id
+        ? (newLink as LinkItem)
+        : {
+            ...newLink,
+            id: `link_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          };
+
+    const updatedData: ProfileData = {
+      ...data,
+      links: [linkItem, ...data.links],
+    };
+
+    updateProfile(updatedData);
+  };
+
   return {
     data,
     isLoading,
     updateProfile,
+    addLink,
   };
 }

@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { LinkItem } from "@/types/profile";
 import {
   Dialog,
@@ -13,6 +16,48 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+
+// 올바른 웹 URL 및 메일주소 검증 정규식
+// 1) http(s)://가 있거나 없는 일반 도메인 (예: github.com, velog.io/@user, https://example.com)
+// 2) localhost 및 포트번호/경로/쿼리/해시 허용
+const URL_REGEX =
+  /^(https?:\/\/)?((([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,})|localhost)(:\d+)?(\/[^\s]*)?$/i;
+const MAILTO_REGEX =
+  /^mailto:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
+
+// 1. Zod 검증 스키마 정의
+export const linkFormSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, { message: "링크 제목을 입력해주세요." })
+    .max(40, { message: "링크 제목은 최대 40자까지 입력할 수 있어요." }),
+  url: z
+    .string()
+    .trim()
+    .min(1, { message: "연결 URL을 입력해주세요." })
+    .refine(
+      (val) => {
+        const trimmed = val.trim();
+        return URL_REGEX.test(trimmed) || MAILTO_REGEX.test(trimmed);
+      },
+      {
+        message: "올바른 URL 형식(예: github.com)을 입력해주세요.",
+      }
+    ),
+  subtitle: z
+    .string()
+    .max(80, { message: "보조 설명은 최대 80자까지 입력할 수 있어요." }),
+  icon: z
+    .string()
+    .min(1, { message: "아이콘을 입력해주세요." }),
+  badge: z
+    .string()
+    .max(10, { message: "뱃지 문구는 최대 10자까지 가능해요." })
+    .nullable(),
+});
+
+export type LinkFormValues = z.infer<typeof linkFormSchema>;
 
 interface AddLinkDialogProps {
   onAddLink: (link: Omit<LinkItem, "id">) => void;
@@ -41,53 +86,42 @@ export function AddLinkDialog({
   triggerButton,
 }: AddLinkDialogProps) {
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [subtitle, setSubtitle] = useState("");
-  const [icon, setIcon] = useState("🔗");
-  const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
-  const [customBadge, setCustomBadge] = useState("");
   const [isCustomBadge, setIsCustomBadge] = useState(false);
-  const [errors, setErrors] = useState<{ title?: string; url?: string }>({});
 
-  const resetForm = () => {
-    setTitle("");
-    setUrl("");
-    setSubtitle("");
-    setIcon("🔗");
-    setSelectedBadge(null);
-    setCustomBadge("");
-    setIsCustomBadge(false);
-    setErrors({});
-  };
+  // 2. React Hook Form 연동 (Zod Resolver 사용)
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<LinkFormValues>({
+    resolver: zodResolver(linkFormSchema),
+    defaultValues: {
+      title: "",
+      url: "",
+      subtitle: "",
+      icon: "🔗",
+      badge: null,
+    },
+    mode: "onTouched",
+  });
+
+  const currentIcon = watch("icon");
+  const currentBadge = watch("badge");
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
     if (!nextOpen) {
-      resetForm();
+      reset();
+      setIsCustomBadge(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const newErrors: { title?: string; url?: string } = {};
-
-    if (!title.trim()) {
-      newErrors.title = "링크 제목을 입력해주세요.";
-    }
-
-    if (!url.trim()) {
-      newErrors.url = "링크 URL을 입력해주세요.";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
+  const onSubmit = (values: LinkFormValues) => {
     // Auto-prepend https:// if protocol is missing
-    let normalizedUrl = url.trim();
+    let normalizedUrl = values.url.trim();
     if (
       !normalizedUrl.startsWith("http://") &&
       !normalizedUrl.startsWith("https://") &&
@@ -96,22 +130,19 @@ export function AddLinkDialog({
       normalizedUrl = `https://${normalizedUrl}`;
     }
 
-    const badge = isCustomBadge
-      ? customBadge.trim() || null
-      : selectedBadge;
-
     onAddLink({
-      title: title.trim(),
+      title: values.title.trim(),
       url: normalizedUrl,
-      subtitle: subtitle.trim(),
-      icon: icon.trim() || "🔗",
-      badge: badge || null,
+      subtitle: values.subtitle?.trim() || "",
+      icon: values.icon.trim() || "🔗",
+      badge: values.badge?.trim() || null,
       isActive: true,
     });
 
     onShowToast("새 링크를 추가했어요");
     setOpen(false);
-    resetForm();
+    reset();
+    setIsCustomBadge(false);
   };
 
   return (
@@ -141,22 +172,21 @@ export function AddLinkDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2">
           {/* 1. 아이콘 선택 */}
           <div className="flex flex-col gap-2">
             <label className="text-[13px] font-semibold text-[#333d4b]">
               아이콘
             </label>
             <div className="flex items-center gap-3">
-              {/* 현재 아이콘 미리보기 & 직접 입력 */}
+              {/* 현재 아이콘 미리보기 */}
               <div className="relative flex items-center justify-center w-12 h-12 rounded-[16px] bg-[#f2f4f6] border border-[#e5e8eb] shrink-0 text-2xl shadow-xs">
-                <span>{icon || "🔗"}</span>
+                <span>{currentIcon || "🔗"}</span>
               </div>
               <div className="flex-1">
                 <input
                   type="text"
-                  value={icon}
-                  onChange={(e) => setIcon(e.target.value)}
+                  {...register("icon")}
                   placeholder="직접 이모지 입력"
                   className="w-full h-10 px-3 rounded-[12px] border border-[#e5e8eb] bg-[#f9fafb] text-[13px] text-[#191f28] placeholder-[#8b95a1] focus:bg-white focus:border-[#3182f6] focus:outline-none transition-all"
                   maxLength={4}
@@ -167,12 +197,12 @@ export function AddLinkDialog({
             {/* 빠른 추천 이모지 칩 */}
             <div className="flex flex-wrap gap-1.5 pt-1">
               {PRESET_ICONS.map((preset) => {
-                const isSelected = icon === preset.icon;
+                const isSelected = currentIcon === preset.icon;
                 return (
                   <button
                     key={preset.label}
                     type="button"
-                    onClick={() => setIcon(preset.icon)}
+                    onClick={() => setValue("icon", preset.icon, { shouldValidate: true })}
                     title={preset.label}
                     className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[10px] text-[12px] transition-all cursor-pointer ${
                       isSelected
@@ -186,33 +216,32 @@ export function AddLinkDialog({
                 );
               })}
             </div>
+            {errors.icon && (
+              <span className="text-[11px] text-[#f04452] font-medium">
+                {errors.icon.message}
+              </span>
+            )}
           </div>
 
           {/* 2. 링크 제목 (필수) */}
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <label
                 htmlFor="link-title"
-                className="text-[13px] font-semibold text-[#333d4b]"
+                className="text-[13px] font-semibold text-[#333d4b] shrink-0 whitespace-nowrap"
               >
                 링크 제목 <span className="text-[#f04452]">*</span>
               </label>
               {errors.title && (
-                <span className="text-[11px] text-[#f04452] font-medium">
-                  {errors.title}
+                <span className="text-[11px] text-[#f04452] font-medium text-right shrink-0 whitespace-nowrap">
+                  {errors.title.message}
                 </span>
               )}
             </div>
             <input
               id="link-title"
               type="text"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                if (errors.title) {
-                  setErrors((prev) => ({ ...prev, title: undefined }));
-                }
-              }}
+              {...register("title")}
               placeholder="예: 포트폴리오, 기술 블로그"
               className={`w-full h-11 px-3.5 rounded-[14px] border text-[14px] text-[#191f28] placeholder-[#8b95a1] bg-[#f9fafb] focus:bg-white focus:outline-none transition-all ${
                 errors.title
@@ -224,30 +253,24 @@ export function AddLinkDialog({
 
           {/* 3. 링크 URL (필수) */}
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <label
                 htmlFor="link-url"
-                className="text-[13px] font-semibold text-[#333d4b]"
+                className="text-[13px] font-semibold text-[#333d4b] shrink-0 whitespace-nowrap"
               >
                 연결 URL <span className="text-[#f04452]">*</span>
               </label>
               {errors.url && (
-                <span className="text-[11px] text-[#f04452] font-medium">
-                  {errors.url}
+                <span className="text-[11px] text-[#f04452] font-medium text-right shrink-0 whitespace-nowrap">
+                  {errors.url.message}
                 </span>
               )}
             </div>
             <input
               id="link-url"
               type="text"
-              value={url}
-              onChange={(e) => {
-                setUrl(e.target.value);
-                if (errors.url) {
-                  setErrors((prev) => ({ ...prev, url: undefined }));
-                }
-              }}
-              placeholder="예: https://velog.io/@username"
+              {...register("url")}
+              placeholder="예: https://velog.io/@username 또는 myblog.com"
               className={`w-full h-11 px-3.5 rounded-[14px] border text-[14px] text-[#191f28] placeholder-[#8b95a1] bg-[#f9fafb] focus:bg-white focus:outline-none transition-all ${
                 errors.url
                   ? "border-[#f04452] focus:border-[#f04452]"
@@ -258,20 +281,26 @@ export function AddLinkDialog({
 
           {/* 4. 보조 설명 (선택) */}
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="link-subtitle"
-              className="text-[13px] font-semibold text-[#333d4b]"
-            >
-              보조 설명{" "}
-              <span className="text-[11px] font-normal text-[#8b95a1]">
-                (선택)
-              </span>
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label
+                htmlFor="link-subtitle"
+                className="text-[13px] font-semibold text-[#333d4b] shrink-0 whitespace-nowrap"
+              >
+                보조 설명{" "}
+                <span className="text-[11px] font-normal text-[#8b95a1]">
+                  (선택)
+                </span>
+              </label>
+              {errors.subtitle && (
+                <span className="text-[11px] text-[#f04452] font-medium text-right shrink-0 whitespace-nowrap">
+                  {errors.subtitle.message}
+                </span>
+              )}
+            </div>
             <input
               id="link-subtitle"
               type="text"
-              value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
+              {...register("subtitle")}
               placeholder="예: 진행했던 주요 프로젝트와 작업물이에요"
               className="w-full h-11 px-3.5 rounded-[14px] border border-[#e5e8eb] text-[14px] text-[#191f28] placeholder-[#8b95a1] bg-[#f9fafb] focus:bg-white focus:border-[#3182f6] focus:ring-2 focus:ring-[#3182f6]/10 focus:outline-none transition-all"
             />
@@ -279,21 +308,28 @@ export function AddLinkDialog({
 
           {/* 5. 강조 뱃지 (선택) */}
           <div className="flex flex-col gap-2">
-            <label className="text-[13px] font-semibold text-[#333d4b]">
-              강조 뱃지{" "}
-              <span className="text-[11px] font-normal text-[#8b95a1]">
-                (선택)
-              </span>
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-[13px] font-semibold text-[#333d4b] shrink-0 whitespace-nowrap">
+                강조 뱃지{" "}
+                <span className="text-[11px] font-normal text-[#8b95a1]">
+                  (선택)
+                </span>
+              </label>
+              {errors.badge && (
+                <span className="text-[11px] text-[#f04452] font-medium text-right shrink-0 whitespace-nowrap">
+                  {errors.badge.message}
+                </span>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedBadge(null);
+                  setValue("badge", null, { shouldValidate: true });
                   setIsCustomBadge(false);
                 }}
                 className={`px-3 py-1 rounded-[10px] text-[12px] transition-all cursor-pointer ${
-                  !isCustomBadge && selectedBadge === null
+                  !isCustomBadge && !currentBadge
                     ? "bg-[#333d4b] text-white font-medium"
                     : "bg-[#f2f4f6] text-[#6b7684] hover:bg-[#e5e8eb]"
                 }`}
@@ -302,13 +338,13 @@ export function AddLinkDialog({
               </button>
 
               {PRESET_BADGES.map((b) => {
-                const isSelected = !isCustomBadge && selectedBadge === b;
+                const isSelected = !isCustomBadge && currentBadge === b;
                 return (
                   <button
                     key={b}
                     type="button"
                     onClick={() => {
-                      setSelectedBadge(b);
+                      setValue("badge", b, { shouldValidate: true });
                       setIsCustomBadge(false);
                     }}
                     className={`px-3 py-1 rounded-[10px] text-[12px] transition-all cursor-pointer ${
@@ -324,7 +360,12 @@ export function AddLinkDialog({
 
               <button
                 type="button"
-                onClick={() => setIsCustomBadge(true)}
+                onClick={() => {
+                  setIsCustomBadge(true);
+                  if (PRESET_BADGES.includes(currentBadge || "")) {
+                    setValue("badge", "", { shouldValidate: true });
+                  }
+                }}
                 className={`px-3 py-1 rounded-[10px] text-[12px] transition-all cursor-pointer ${
                   isCustomBadge
                     ? "bg-[#e8f3ff] text-[#3182f6] font-bold border border-[#3182f6]/30"
@@ -338,10 +379,12 @@ export function AddLinkDialog({
             {isCustomBadge && (
               <input
                 type="text"
-                value={customBadge}
-                onChange={(e) => setCustomBadge(e.target.value)}
+                value={currentBadge || ""}
+                onChange={(e) =>
+                  setValue("badge", e.target.value, { shouldValidate: true })
+                }
                 placeholder="뱃지 문구 (예: 이벤트, 인기)"
-                maxLength={8}
+                maxLength={10}
                 className="w-full h-9 px-3 rounded-[10px] border border-[#e5e8eb] bg-[#f9fafb] text-[12px] text-[#191f28] placeholder-[#8b95a1] focus:bg-white focus:border-[#3182f6] focus:outline-none transition-all mt-1"
               />
             )}
@@ -359,7 +402,8 @@ export function AddLinkDialog({
             </Button>
             <Button
               type="submit"
-              className="h-11 px-6 rounded-[14px] text-[14px] font-semibold text-white bg-[#3182f6] hover:bg-[#1b64da] active:scale-[0.98] shadow-sm transition-all cursor-pointer"
+              disabled={isSubmitting}
+              className="h-11 px-6 rounded-[14px] text-[14px] font-semibold text-white bg-[#3182f6] hover:bg-[#1b64da] disabled:opacity-50 active:scale-[0.98] shadow-sm transition-all cursor-pointer"
             >
               추가하기
             </Button>
